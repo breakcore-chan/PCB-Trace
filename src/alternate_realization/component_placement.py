@@ -45,10 +45,29 @@ def create_components():
                 print(f"Ошибка: {e}. Повторите ввод.")
     return components
 
+def create_connections(num_components):
+    """Создание списка соединений между компонентами"""
+    connections = []
+    print("\nВведите соединения между компонентами (например, 1 2):")
+    while True:
+        try:
+            pair = input("Введите пару (или 'готово' для завершения): ").strip().lower()
+            if pair == 'готово':
+                break
+            a, b = map(int, pair.split())
+            if a < 1 or b < 1 or a > num_components or b > num_components:
+                print("Ошибка: Некорректные номера компонентов!")
+                continue
+            connections.append((a-1, b-1))  # Переводим в 0-индексацию
+        except ValueError:
+            print("Ошибка: Введите два числа через пробел!")
+    return connections
+
 # Конфигурация
 BOARD_WIDTH = 20
 BOARD_HEIGHT = 20
 COMPONENTS = create_components()
+CONNECTIONS = create_connections(len(COMPONENTS))
 POPULATION_SIZE = 50
 GENERATIONS = 10000
 CXPB = 0.7
@@ -112,11 +131,10 @@ def evaluate(individual):
         centers.append((x + comp.width/2, y + comp.height/2))
     
     total_wirelength = 0.0
-    for i in range(len(centers)):
-        for j in range(i+1, len(centers)):
-            dx = centers[i][0] - centers[j][0]
-            dy = centers[i][1] - centers[j][1]
-            total_wirelength += (dx**2 + dy**2)**0.5
+    for a, b in CONNECTIONS:
+        dx = centers[a][0] - centers[b][0]
+        dy = centers[a][1] - centers[b][1]
+        total_wirelength += (dx**2 + dy**2)**0.5
 
     penalty = overlaps * 1000 + out_of_board * 5000
     return (total_wirelength + penalty,)
