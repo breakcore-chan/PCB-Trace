@@ -47,7 +47,7 @@ def create_components():
 
 def create_connections(num_components):
     """Создание списка соединений между компонентами"""
-    connections = []
+    connections = set()  # Используем множество для хранения уникальных соединений
     print("\nВведите соединения между компонентами (например, 1 2):")
     while True:
         try:
@@ -58,10 +58,15 @@ def create_connections(num_components):
             if a < 1 or b < 1 or a > num_components or b > num_components:
                 print("Ошибка: Некорректные номера компонентов!")
                 continue
-            connections.append((a-1, b-1))  # Переводим в 0-индексацию
+            
+            # Добавляем соединение в множество в упорядоченном виде
+            if (a-1, b-1) not in connections and (b-1, a-1) not in connections:
+                connections.add((a-1, b-1))  # Переводим в 0-индексацию
+            else:
+                print("Соединение уже существует!")
         except ValueError:
             print("Ошибка: Введите два числа через пробел!")
-    return connections
+    return list(connections)  # Возвращаем список
 
 # Конфигурация
 BOARD_WIDTH = 20

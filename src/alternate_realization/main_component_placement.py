@@ -6,6 +6,7 @@ from genetic_algorithm import GeneticAlgorithm
 from plot_window import PlotWindow
 from component_editor import ComponentEditor
 
+
 # Параметры конфигурации по умолчанию
 BOARD_WIDTH = 20
 BOARD_HEIGHT = 20
@@ -214,7 +215,9 @@ class MainApp:
         """Открывает окно редактора компонентов"""
         selected_config = self.config_listbox.get(tk.ACTIVE)
         if selected_config:
-            ComponentEditor(self.root, self.config_manager.get_config(selected_config))
+            config = self.config_manager.get_config(selected_config)
+            # Передаем config_manager в ComponentEditor
+            ComponentEditor(self.root, self.config_manager, config)
 
 if __name__ == "__main__":
     root = tk.Tk()
