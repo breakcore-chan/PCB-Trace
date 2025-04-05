@@ -1,6 +1,8 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import messagebox, ttk
+
 from genetic_algorithm import GeneticAlgorithm
+
 
 class GAWindow:
     def __init__(self, parent, config):

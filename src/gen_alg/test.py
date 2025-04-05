@@ -1,14 +1,24 @@
-import random
 import math
+import random
+
 import numpy
-from deap import base, creator, tools, algorithms
+from deap import algorithms, base, creator, tools
 
 # Параметры задачи
 WIDTH = 100  # Ширина платы
 HEIGHT = 100  # Высота платы
 NUM_ELEMENTS = 10  # Количество элементов
-CONNECTIONS = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5),
-               (5, 6), (6, 7), (7, 8), (8, 9)]  # Связи
+CONNECTIONS = [
+    (0, 1),
+    (1, 2),
+    (2, 3),
+    (3, 4),
+    (4, 5),
+    (5, 6),
+    (6, 7),
+    (7, 8),
+    (8, 9),
+]  # Связи
 ELEMENT_RADIUS = 5  # Радиус элемента (для проверки пересечений)
 PENALTY_MULTIPLIER = 1000  # Множитель штрафа за пересечение
 
@@ -23,8 +33,13 @@ toolbox.register("attr_x", random.uniform, 0, WIDTH)
 toolbox.register("attr_y", random.uniform, 0, HEIGHT)
 
 # Создание особи
-toolbox.register("individual", tools.initCycle, creator.Individual,
-                 (toolbox.attr_x, toolbox.attr_y), n=NUM_ELEMENTS)
+toolbox.register(
+    "individual",
+    tools.initCycle,
+    creator.Individual,
+    (toolbox.attr_x, toolbox.attr_y),
+    n=NUM_ELEMENTS,
+)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 
@@ -72,9 +87,16 @@ def main():
     stats.register("min", numpy.min)
 
     # Запуск генетического алгоритма
-    pop, log = algorithms.eaSimple(pop, toolbox, cxpb=cx_prob, mutpb=mut_prob,
-                                   ngen=num_generations, stats=stats,
-                                   halloffame=hof, verbose=True)
+    pop, log = algorithms.eaSimple(
+        pop,
+        toolbox,
+        cxpb=cx_prob,
+        mutpb=mut_prob,
+        ngen=num_generations,
+        stats=stats,
+        halloffame=hof,
+        verbose=True,
+    )
 
     # Вывод результата
     best_ind = hof[0]

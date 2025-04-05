@@ -1,11 +1,11 @@
-import tkinter as tk
-from tkinter import ttk, messagebox, scrolledtext
 import random
+import tkinter as tk
+from tkinter import messagebox, scrolledtext, ttk
+
+from component_editor import ComponentEditor
 from config_manager import ConfigManager
 from genetic_algorithm import GeneticAlgorithm
 from plot_window import PlotWindow
-from component_editor import ComponentEditor
-
 
 # Параметры конфигурации по умолчанию
 BOARD_WIDTH = 20
@@ -15,6 +15,7 @@ GENERATIONS = 10000
 CXPB = 0.7
 MUTPB = 0.2
 VISUALIZATION_STEPS = [10, 50, 100, 200, 500, 1000, 5000, 10000]
+
 
 class MainApp:
     def __init__(self, root):
@@ -38,11 +39,15 @@ class MainApp:
         self.update_config_list()
 
         # Кнопка для создания новой конфигурации (под списком)
-        self.new_config_button = tk.Button(left_frame, text="Добавить конфигурацию", command=self.create_new_config)
+        self.new_config_button = tk.Button(
+            left_frame, text="Добавить конфигурацию", command=self.create_new_config
+        )
         self.new_config_button.pack(fill=tk.X, padx=5, pady=5)
 
         # Кнопка для построения графиков (под списком)
-        self.plot_button = tk.Button(left_frame, text="Построить графики", command=self.open_plot_window)
+        self.plot_button = tk.Button(
+            left_frame, text="Построить графики", command=self.open_plot_window
+        )
         self.plot_button.pack(fill=tk.X, padx=5, pady=5)
 
         # Правая панель: параметры конфигурации
@@ -50,14 +55,24 @@ class MainApp:
         self.config_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
         # Кнопки для запуска алгоритма и проверки размещения
-        self.ga_button = tk.Button(self.config_frame, text="Запустить ГА", command=self.open_ga_console)
+        self.ga_button = tk.Button(
+            self.config_frame, text="Запустить ГА", command=self.open_ga_console
+        )
         self.ga_button.pack(side=tk.BOTTOM, pady=5)
 
-        self.custom_layout_button = tk.Button(self.config_frame, text="Проверить размещение", command=self.check_custom_layout)
+        self.custom_layout_button = tk.Button(
+            self.config_frame,
+            text="Проверить размещение",
+            command=self.check_custom_layout,
+        )
         self.custom_layout_button.pack(side=tk.BOTTOM, pady=5)
 
         # Кнопка для открытия редактора компонентов
-        self.component_editor_button = tk.Button(self.config_frame, text="Редактор компонентов", command=self.open_component_editor)
+        self.component_editor_button = tk.Button(
+            self.config_frame,
+            text="Редактор компонентов",
+            command=self.open_component_editor,
+        )
         self.component_editor_button.pack(side=tk.BOTTOM, pady=5)
 
         # Отображение параметров конфигурации
@@ -76,17 +91,20 @@ class MainApp:
     def create_new_config(self):
         """Создает новую конфигурацию"""
         new_config_name = f"Конфигурация {len(self.config_manager.configs) + 1}"
-        self.config_manager.add_config(new_config_name, {
-            "board_width": BOARD_WIDTH,
-            "board_height": BOARD_HEIGHT,
-            "population_size": POPULATION_SIZE,
-            "generations": GENERATIONS,
-            "visualization_steps": VISUALIZATION_STEPS,
-            "cxpb": CXPB,
-            "mutpb": MUTPB,
-            "components": [],
-            "connections": []
-        })
+        self.config_manager.add_config(
+            new_config_name,
+            {
+                "board_width": BOARD_WIDTH,
+                "board_height": BOARD_HEIGHT,
+                "population_size": POPULATION_SIZE,
+                "generations": GENERATIONS,
+                "visualization_steps": VISUALIZATION_STEPS,
+                "cxpb": CXPB,
+                "mutpb": MUTPB,
+                "components": [],
+                "connections": [],
+            },
+        )
         self.update_config_list()
         self.update_config_params()
 
@@ -119,23 +137,34 @@ class MainApp:
                 if key in ["components", "connections"]:
                     continue  # Пропускаем компоненты и соединения
 
-                ttk.Label(self.config_params_frame, text=f"{key}:").grid(row=row, column=0, sticky=tk.W)
-                
+                ttk.Label(self.config_params_frame, text=f"{key}:").grid(
+                    row=row, column=0, sticky=tk.W
+                )
+
                 # Поле для ввода значения
                 entry = ttk.Entry(self.config_params_frame)
                 entry.insert(0, str(value))  # Вставляем значение по умолчанию
                 entry.grid(row=row, column=1, sticky=tk.W)
-                
+
                 # Если значение по умолчанию, делаем текст серым
                 entry.config(foreground="gray")
-                entry.bind("<FocusIn>", lambda event, e=entry: self.on_entry_focus_in(e))
-                entry.bind("<FocusOut>", lambda event, e=entry, k=key: self.on_entry_focus_out(e, k, config))
-                
+                entry.bind(
+                    "<FocusIn>", lambda event, e=entry: self.on_entry_focus_in(e)
+                )
+                entry.bind(
+                    "<FocusOut>",
+                    lambda event, e=entry, k=key: self.on_entry_focus_out(e, k, config),
+                )
+
                 row += 1
 
     def on_entry_focus_in(self, entry):
         """Обработчик события фокуса на поле ввода"""
-        if entry.get() == str(self.config_manager.get_config(self.config_listbox.get(tk.ACTIVE)).get(entry.cget("text").rstrip(":"))):
+        if entry.get() == str(
+            self.config_manager.get_config(self.config_listbox.get(tk.ACTIVE)).get(
+                entry.cget("text").rstrip(":")
+            )
+        ):
             entry.delete(0, tk.END)
             entry.config(foreground="black")
 
@@ -147,7 +176,12 @@ class MainApp:
         else:
             # Обновляем значение в конфигурации
             try:
-                if key in ["board_width", "board_height", "population_size", "generations"]:
+                if key in [
+                    "board_width",
+                    "board_height",
+                    "population_size",
+                    "generations",
+                ]:
                     config[key] = int(entry.get())
                 elif key in ["cxpb", "mutpb"]:
                     config[key] = float(entry.get())
@@ -168,10 +202,14 @@ class MainApp:
             config = self.config_manager.get_config(selected_config)
             ga_console = tk.Toplevel(self.root)
             ga_console.title("Размещение элементов")
-            ga_console.geometry(f"{config['board_width'] * 30}x{config['board_height'] * 30}")  # Размер окна зависит от платы
+            ga_console.geometry(
+                f"{config['board_width'] * 30}x{config['board_height'] * 30}"
+            )  # Размер окна зависит от платы
 
             # Консоль для вывода
-            self.console = scrolledtext.ScrolledText(ga_console, wrap=tk.WORD, font=("Courier", 10))
+            self.console = scrolledtext.ScrolledText(
+                ga_console, wrap=tk.WORD, font=("Courier", 10)
+            )
             self.console.pack(fill=tk.BOTH, expand=True)
 
             # Запуск генетического алгоритма
@@ -188,7 +226,9 @@ class MainApp:
             self.console.see(tk.END)
 
         try:
-            pop, logbook = ga.run(log, config["visualization_steps"])  # Передаем функцию log и шаги визуализации
+            pop, logbook = ga.run(
+                log, config["visualization_steps"]
+            )  # Передаем функцию log и шаги визуализации
             log(f"\nФинальное поколение: {config['generations']}")
             log("Генетический алгоритм завершён.")
         except Exception as e:
@@ -218,6 +258,7 @@ class MainApp:
             config = self.config_manager.get_config(selected_config)
             # Передаем config_manager в ComponentEditor
             ComponentEditor(self.root, self.config_manager, config)
+
 
 if __name__ == "__main__":
     root = tk.Tk()

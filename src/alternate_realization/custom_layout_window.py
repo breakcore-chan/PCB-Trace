@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
+
 class CustomLayoutWindow:
     def __init__(self, parent, config):
         self.config = config
@@ -12,7 +13,7 @@ class CustomLayoutWindow:
         """Создает интерфейс окна"""
         self.entries = []
         for i, comp in enumerate(self.config["components"]):
-            frame = ttk.LabelFrame(self.window, text=f"Компонент {i+1}")
+            frame = ttk.LabelFrame(self.window, text=f"Компонент {i + 1}")
             frame.pack(fill=tk.X, padx=5, pady=5)
 
             ttk.Label(frame, text="X:").grid(row=0, column=0)
