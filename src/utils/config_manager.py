@@ -35,7 +35,7 @@ class ConfigManager:
     # TODO 1 json = 1 конфигурация
     def save_configs(self):
         """Сохраняет конфигурации в JSON, включая компоненты и соединения"""
-        with open("configs.json", "w", encoding="utf-8") as f:
+        with open("src/configs/configs.json", "w", encoding="utf-8") as f:
             json.dump(self.configs, f, ensure_ascii=False, indent=4)
 
     # TODO если нет файла сообщить об этом

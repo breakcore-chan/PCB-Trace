@@ -2,10 +2,10 @@ import random
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, ttk
 
-from component_editor import ComponentEditor
-from config_manager import ConfigManager
-from genetic_algorithm import GeneticAlgorithm
-from plot_window import PlotWindow
+from presentation.component_editor import ComponentEditor
+from utils.config_manager import ConfigManager
+from gen_alg.genetic_algorithm import GeneticAlgorithm
+from presentation.plot_window import PlotWindow
 
 # Параметры конфигурации по умолчанию
 BOARD_WIDTH = 20
