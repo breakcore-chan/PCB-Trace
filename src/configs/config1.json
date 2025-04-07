@@ -1,0 +1,64 @@
+{
+    "Конфигурация 1": {
+        "board_width": 20,
+        "board_height": 20,
+        "population_size": 50,
+        "generations": 1000,
+        "visualization_steps": [
+            10,
+            50,
+            100,
+            200,
+            500,
+            1000,
+            5000,
+            10000
+        ],
+        "cxpb": 0.7,
+        "mutpb": 0.2,
+        "components": [
+            {
+                "width": 1,
+                "height": 1
+            },
+            {
+                "width": 7,
+                "height": 2
+            },
+            {
+                "width": 8,
+                "height": 9
+            },
+            {
+                "width": 2,
+                "height": 3
+            }
+        ],
+        "connections": [
+            [
+                0,
+                1
+            ],
+            [
+                0,
+                2
+            ],
+            [
+                0,
+                3
+            ],
+            [
+                1,
+                3
+            ],
+            [
+                1,
+                2
+            ],
+            [
+                2,
+                3
+            ]
+        ]
+    }
+}

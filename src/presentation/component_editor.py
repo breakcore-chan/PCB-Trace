@@ -50,18 +50,19 @@ class ComponentEditor:
 
     def add_component(self):
         """Добавляет новый компонент"""
-        width = int(self.width_entry.get())
-        height = int(self.height_entry.get())
+        try:
+            width = int(self.width_entry.get())
+            height = int(self.height_entry.get())
 
-        if width > 0 and height > 0:
-            # Автоматическое именование компонентов (C1, C2, C3, ...)
-            component_name = f"C{len(self.config['components']) + 1}"
-            self.config["components"].append({"width": width, "height": height})
-            self.update_component_list()
-            self.width_entry.delete(0, tk.END)
-            self.height_entry.delete(0, tk.END)
-            self.width_entry.insert(0, "1")
-            self.height_entry.insert(0, "1")
+            if width > 0 and height > 0:
+                self.config["components"].append({"width": width, "height": height})
+                self.update_component_list()
+                self.width_entry.delete(0, tk.END)
+                self.height_entry.delete(0, tk.END)
+                self.width_entry.insert(0, "1")
+                self.height_entry.insert(0, "1")
+        except ValueError:
+            pass
 
     def update_component_list(self):
         """Обновляет список компонентов"""
@@ -72,12 +73,15 @@ class ComponentEditor:
             )
 
     def open_connection_table(self):
-        """Открывает окно с таблицей соединений и сохраняет конфигурацию"""
-        self.config_manager.save_configs()  # Сохраняем компоненты перед переходом
+        """Открывает окно с таблицей соединений"""
+        # Сохраняем изменения компонентов
+        config_name = next((name for name, cfg in self.config_manager.configs.items() 
+                          if cfg == self.config), None)
+        if config_name:
+            self.config_manager.update_config(config_name, self.config)
+        
         self.window.destroy()
-        ConnectionTable(
-            self.window.master, self.config_manager, self.config
-        )  # Передаем config_manager
+        ConnectionTable(self.window.master, self.config_manager, self.config)
 
 
 class ConnectionTable:
@@ -105,6 +109,9 @@ class ConnectionTable:
     def create_connection_table(self):
         """Создает таблицу соединений с загрузкой существующих соединений"""
         num_components = len(self.config["components"])
+        if num_components == 0:
+            return
+
         self.connection_buttons = [
             [None for _ in range(num_components)] for _ in range(num_components)
         ]
@@ -118,13 +125,11 @@ class ConnectionTable:
         for i in range(num_components):
             for j in range(num_components):
                 if i == j:
-                    # Диагональные кнопки недоступны
                     btn = ttk.Button(self.connection_frame, text="X", state=tk.DISABLED)
                 else:
-                    # Проверяем, есть ли соединение (i,j) или (j,i)
                     is_connected = any(
                         (a == i and b == j) or (a == j and b == i)
-                        for (a, b) in self.config["connections"]
+                        for (a, b) in self.config.get("connections", [])
                     )
                     btn_text = "✓" if is_connected else " "
                     btn = ttk.Button(
@@ -136,24 +141,20 @@ class ConnectionTable:
                 self.connection_buttons[i][j] = btn
 
     def toggle_connection(self, i, j):
-        """Переключает соединение между компонентами, избегая дубликатов"""
-        # Проверяем наличие соединения в любом порядке
+        """Переключает соединение между компонентами"""
+        connections = self.config.setdefault("connections", [])
         connection_exists = any(
-            (a == i and b == j) or (a == j and b == i)
-            for (a, b) in self.config["connections"]
+            (a == i and b == j) or (a == j and b == i) for (a, b) in connections
         )
 
         if connection_exists:
-            # Удаляем оба варианта соединения если существуют
             self.config["connections"] = [
-                (a, b)
-                for (a, b) in self.config["connections"]
+                (a, b) for (a, b) in connections
                 if not ((a == i and b == j) or (a == j and b == i))
             ]
             self.connection_buttons[i][j].config(text=" ")
             self.connection_buttons[j][i].config(text=" ")
         else:
-            # Добавляем только один вариант (i,j) где i < j
             if i < j:
                 self.config["connections"].append((i, j))
             else:
@@ -162,23 +163,11 @@ class ConnectionTable:
             self.connection_buttons[j][i].config(text="✓")
 
         # Сохраняем изменения
-        self.config_manager.save_configs()
-
-    def update_connection_buttons(self):
-        """Обновляет все кнопки соединений на основе config["connections"]"""
-        for i in range(len(self.config["components"])):
-            for j in range(len(self.config["components"])):
-                if i == j:
-                    continue
-                if any(
-                    (a, b) == (i, j) or (a, b) == (j, i)
-                    for (a, b) in self.config["connections"]
-                ):
-                    self.connection_buttons[i][j].config(text="✓")
-                else:
-                    self.connection_buttons[i][j].config(text=" ")
+        config_name = next((name for name, cfg in self.config_manager.configs.items() 
+                          if cfg == self.config), None)
+        if config_name:
+            self.config_manager.update_config(config_name, self.config)
 
     def on_done(self):
-        """Сохраняет конфигурацию и закрывает окно"""
-        self.config_manager.save_configs()  # Сохраняем соединения
+        """Закрывает окно"""
         self.window.destroy()

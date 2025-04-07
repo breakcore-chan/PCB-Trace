@@ -116,7 +116,7 @@ class MainApp:
         """Обработчик ПКМ для удаления конфигурации"""
         selected_config = self.config_listbox.get(tk.ACTIVE)
         if selected_config:
-            self.config_manager.configs.pop(selected_config)
+            self.config_manager.delete_config(selected_config)  # Измененная строка
             self.update_config_list()
             self.update_config_params()
 
