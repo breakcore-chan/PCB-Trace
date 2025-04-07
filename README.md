@@ -5,3 +5,5 @@
 и теги самой заметки.
 ## src
 ~~А сюда мемы кидать~~
+
+python -m  src.main_component_placement
