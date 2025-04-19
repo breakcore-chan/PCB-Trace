@@ -75,11 +75,17 @@ class ComponentEditor:
     def open_connection_table(self):
         """Открывает окно с таблицей соединений"""
         # Сохраняем изменения компонентов
-        config_name = next((name for name, cfg in self.config_manager.configs.items() 
-                          if cfg == self.config), None)
+        config_name = next(
+            (
+                name
+                for name, cfg in self.config_manager.configs.items()
+                if cfg == self.config
+            ),
+            None,
+        )
         if config_name:
             self.config_manager.update_config(config_name, self.config)
-        
+
         self.window.destroy()
         ConnectionTable(self.window.master, self.config_manager, self.config)
 
@@ -149,7 +155,8 @@ class ConnectionTable:
 
         if connection_exists:
             self.config["connections"] = [
-                (a, b) for (a, b) in connections
+                (a, b)
+                for (a, b) in connections
                 if not ((a == i and b == j) or (a == j and b == i))
             ]
             self.connection_buttons[i][j].config(text=" ")
@@ -163,8 +170,14 @@ class ConnectionTable:
             self.connection_buttons[j][i].config(text="✓")
 
         # Сохраняем изменения
-        config_name = next((name for name, cfg in self.config_manager.configs.items() 
-                          if cfg == self.config), None)
+        config_name = next(
+            (
+                name
+                for name, cfg in self.config_manager.configs.items()
+                if cfg == self.config
+            ),
+            None,
+        )
         if config_name:
             self.config_manager.update_config(config_name, self.config)
 

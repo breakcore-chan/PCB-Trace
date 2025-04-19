@@ -2,10 +2,10 @@ import random
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, ttk
 
-from presentation.component_editor import ComponentEditor
-from utils.config_manager import ConfigManager
-from gen_alg.genetic_algorithm import GeneticAlgorithm
-from presentation.plot_window import PlotWindow
+from src.gen_alg.genetic_algorithm import GeneticAlgorithm
+from src.presentation.component_editor import ComponentEditor
+from src.presentation.plot_window import PlotWindow
+from src.utils.config_manager import ConfigManager
 
 # Параметры конфигурации по умолчанию
 BOARD_WIDTH = 20
@@ -258,9 +258,3 @@ class MainApp:
             config = self.config_manager.get_config(selected_config)
             # Передаем config_manager в ComponentEditor
             ComponentEditor(self.root, self.config_manager, config)
-
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = MainApp(root)
-    root.mainloop()

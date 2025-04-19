@@ -26,7 +26,7 @@ class ConfigManager:
         """Добавляет новую конфигурацию в отдельный файл"""
         config_number = self._get_next_config_number()
         filename = os.path.join(CONFIGS_DIR, f"config{config_number}.json")
-        
+
         default_config = {
             "board_width": 20,
             "board_height": 20,
@@ -38,7 +38,7 @@ class ConfigManager:
             "components": [],
             "connections": [],
         }
-        
+
         self.configs[name] = default_config if config is None else config
         with open(filename, "w", encoding="utf-8") as f:
             json.dump({name: self.configs[name]}, f, ensure_ascii=False, indent=4)
@@ -63,7 +63,9 @@ class ConfigManager:
         for filename in os.listdir(CONFIGS_DIR):
             if filename.endswith(".json"):
                 try:
-                    with open(os.path.join(CONFIGS_DIR, filename), "r", encoding="utf-8") as f:
+                    with open(
+                        os.path.join(CONFIGS_DIR, filename), "r", encoding="utf-8"
+                    ) as f:
                         data = json.load(f)
                         self.configs.update(data)
                 except json.JSONDecodeError:
@@ -99,7 +101,7 @@ class ConfigManager:
                         files_to_delete.append(filepath)
             except (json.JSONDecodeError, PermissionError):
                 continue
-        
+
         # Удаление файлов после закрытия всех дескрипторов
         for filepath in files_to_delete:
             try:
