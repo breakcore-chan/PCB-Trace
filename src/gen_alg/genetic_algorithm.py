@@ -5,63 +5,94 @@ from tkinter import scrolledtext, ttk
 import numpy as np
 from deap import base, creator, tools
 
+from configs.base_config import base_config
+
 
 class GeneticAlgorithm:
-    def __init__(self, config):
-        self.config = config
+    def __init__(self, config: dict):
+        self.config = config  # Используемый конфиг из дериктории
         self.setup_ga()
         self.visualization_window = None
         self.generations_data = []
         self.current_generation_idx = 0
+        self.fitness = []
 
     def setup_ga(self):
         """Инициализация генетического алгоритма"""
-        if not hasattr(creator, "FitnessMin"):
-            creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
-        if not hasattr(creator, "Individual"):
-            creator.create("Individual", list, fitness=creator.FitnessMin)
+        if not hasattr(creator, "FitnessMin"):  # Если не задана функция минимизации
+            creator.create(
+                "FitnessMin", base.Fitness, weights=(-1.0,)
+            )  # Создаём функцию оценки(минимизации) с параметром до куда нужно минимизировать
+        if not hasattr(creator, "Individual"):  # Если не задан индивид
+            creator.create(
+                "Individual", list, fitness=creator.FitnessMin
+            )  # Создаём индивида, в виде генома(листа), с заданой функцией оценки как локальное свойство класса индивида
 
-        self.toolbox = base.Toolbox()
-        self.toolbox.register("individual", self.individual_generator)
+        self.toolbox = (
+            base.Toolbox()
+        )  # Класс для создания функций для работы с индивидами и популяцией
+        self.toolbox.register(
+            "individual", self.individual_generator
+        )  # Алиас для вызова функции создания индивида
         self.toolbox.register(
             "population", tools.initRepeat, list, self.toolbox.individual
-        )
-        self.toolbox.register("evaluate", self.evaluate)
-        self.toolbox.register("mate", tools.cxTwoPoint)
+        )  # Создание популяции, популяция - список, каждый элемент которого - список, хромосома особи
+        self.toolbox.register(
+            "evaluate", self.evaluate
+        )  # Алиас для функции оценки особи
+        self.toolbox.register("mate", tools.cxTwoPoint)  # Алиас для функции скрещивания
         self.toolbox.register(
             "mutate",
             tools.mutUniformInt,
             low=0,
             up=max(self.config["board_width"], self.config["board_height"]) - 1,
             indpb=0.1,
-        )
-        self.toolbox.register("select", tools.selTournament, tournsize=3)
-        self.toolbox.register("mutate_rotation", self.mutRotation, indpb=0.1)
+        )  # Алиас для функции мутации
+        # TODO добавить в конфиг возможность выбора функции отбора и размера турнирной сетки
+        self.toolbox.register(
+            "select", tools.selTournament, tournsize=3
+        )  # Алиас для функции отбора(в данном случае турнирного)
+        self.toolbox.register(
+            "mutate_rotation", self.mutRotation, indpb=base_config.INDPB
+        )  # Алиас для функции мутации поворота, срабатывает с шансом
+        # TODO добавить в конфиг параметр indpb - вероятность конкрентой мутации(у нас вероятность поворота)
 
     def individual_generator(self):
         """Генерация случайной особи"""
-        ind = []
-        for comp in self.config["components"]:
-            max_x = self.config["board_width"] - comp["width"]
-            max_y = self.config["board_height"] - comp["height"]
-            x = random.randint(0, max_x) if max_x >= 0 else 0
-            y = random.randint(0, max_y) if max_y >= 0 else 0
-            rot = random.randint(0, 1)
-            ind.extend([x, y, rot])
-        return creator.Individual(ind)
+        genome = []
+        for comp in self.config["components"]:  # Перебираем все компоненты в конфиге
+            max_x = (
+                self.config["board_width"] - comp["width"]
+            )  # В каком диапазоне может появиться компонент по ширине
+            max_y = (
+                self.config["board_height"] - comp["height"]
+            )  # В каком диапазоне может появиться компонент по высоте
+            x = (
+                random.randint(0, max_x) if max_x >= 0 else 0
+            )  # Случайная координата по x
+            y = (
+                random.randint(0, max_y) if max_y >= 0 else 0
+            )  # Случайная координата по y
+            rot = random.randint(0, 1)  # Повёрнут или нет
+            genome.extend(
+                [x, y, rot]
+            )  # Итоговый геном одной особи состоит из 3-х хромосом
+        return creator.Individual(genome)  # Геном особи - размещение всех компонентов
 
-    def mutRotation(self, individual, indpb):
+    def mutRotation(self, individual: list, indpb: float):
         """Мутация поворота компонента"""
         for i in range(2, len(individual), 3):
-            if random.random() < indpb:
+            if (
+                random.random() < indpb
+            ):  # Поворачиваем компонент, если сработала вераятность
                 individual[i] = 1 - individual[i]
         return (individual,)
 
     def evaluate(self, individual):
         """Функция оценки особи"""
-        placements = np.array(individual).reshape(-1, 3)
-        overlaps = 0
-        out_of_board = 0
+        placements = np.array(individual).reshape(-1, 3)  # Преобразуем в матрицу N x 3
+        overlaps = 0  # Количество пересечений
+        out_of_board = 0  # Выход за границы платы
 
         for i, (x, y, rot) in enumerate(placements):
             comp = self.config["components"][i]
@@ -296,6 +327,8 @@ class GeneticAlgorithm:
             log("Поколение: 0")
             log(f"Оценочная функция: {best_ind.fitness.values[0]}")
 
+        self.fitness.append(best_ind.fitness.values[0])
+
         # Основной цикл генетического алгоритма
         for gen in range(1, self.config["generations"] + 1):
             # Селекция и создание потомков
@@ -331,6 +364,8 @@ class GeneticAlgorithm:
                     (best_ind, gen, best_ind.fitness.values[0])
                 )
 
+                self.fitness.append(best_ind.fitness.values[0])
+
                 # Автоматически показываем последнее сохраненное поколение
                 self.current_generation_idx = len(self.generations_data) - 1
                 self.display_generation(self.current_generation_idx)
@@ -340,4 +375,4 @@ class GeneticAlgorithm:
                     log(f"\nПоколение {gen}:")
                     log(f"Оценочная функция: {best_ind.fitness.values[0]}")
 
-        return population, None
+        return population, self.fitness

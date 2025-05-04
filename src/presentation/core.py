@@ -1,20 +1,13 @@
 import random
+import time
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, ttk
 
 from src.gen_alg.genetic_algorithm import GeneticAlgorithm
 from src.presentation.component_editor import ComponentEditor
 from src.presentation.plot_window import PlotWindow
+from configs.base_config import base_config
 from src.utils.config_manager import ConfigManager
-
-# Параметры конфигурации по умолчанию
-BOARD_WIDTH = 20
-BOARD_HEIGHT = 20
-POPULATION_SIZE = 50
-GENERATIONS = 10000
-CXPB = 0.7
-MUTPB = 0.2
-VISUALIZATION_STEPS = [10, 50, 100, 200, 500, 1000, 5000, 10000]
 
 
 class MainApp:
@@ -22,7 +15,7 @@ class MainApp:
         self.root = root
         self.root.title("Конфигурации для размещения элементов")
         self.config_manager = ConfigManager()
-
+        self.fitness = []
         # Создание интерфейса
         self.create_widgets()
 
@@ -94,15 +87,15 @@ class MainApp:
         self.config_manager.add_config(
             new_config_name,
             {
-                "board_width": BOARD_WIDTH,
-                "board_height": BOARD_HEIGHT,
-                "population_size": POPULATION_SIZE,
-                "generations": GENERATIONS,
-                "visualization_steps": VISUALIZATION_STEPS,
-                "cxpb": CXPB,
-                "mutpb": MUTPB,
-                "components": [],
-                "connections": [],
+                "board_width": base_config.BOARD_WIDTH,
+                "board_height": base_config.BOARD_HEIGHT,
+                "population_size": base_config.POPULATION_SIZE,
+                "generations": base_config.GENERATIONS,
+                "visualization_steps": base_config.VISUALIZATION_STEPS,
+                "cxpb": base_config.CXPB,
+                "mutpb": base_config.MUTPB,
+                "components": base_config.COMPONENTS,
+                "connections": base_config.CONNECTIONS,
             },
         )
         self.update_config_list()
@@ -226,11 +219,14 @@ class MainApp:
             self.console.see(tk.END)
 
         try:
-            pop, logbook = ga.run(
+            start_time = time.time()
+            pop, self.fitness = ga.run(
                 log, config["visualization_steps"]
             )  # Передаем функцию log и шаги визуализации
+            stop_time = time.time()
             log(f"\nФинальное поколение: {config['generations']}")
             log("Генетический алгоритм завершён.")
+            log(f"Время выполнения: {stop_time - start_time}")
         except Exception as e:
             log(f"Ошибка: {str(e)}")
 
@@ -249,7 +245,9 @@ class MainApp:
 
     def open_plot_window(self):
         """Открывает окно для построения графиков"""
-        PlotWindow(self.root, self.config_manager)
+        PlotWindow(
+            parent=self.root, config_manager=self.config_manager, fitness=self.fitness
+        )
 
     def open_component_editor(self):
         """Открывает окно редактора компонентов"""
