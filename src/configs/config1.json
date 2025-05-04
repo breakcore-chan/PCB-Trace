@@ -1,59 +1,57 @@
 {
-    "Конфигурация 1": {
-        "board_width": 20,
-        "board_height": 20,
-        "population_size": 50,
-        "generations": 100,
-        "visualization_steps": [
+    "board_width": 20,
+    "board_height": 20,
+    "population_size": 50,
+    "generations": 100,
+    "visualization_steps": [
+        0,
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        70,
+        80,
+        90,
+        100
+    ],
+    "cxpb": 0.7,
+    "mutpb": 0.2,
+    "components": [
+        {
+            "width": 1,
+            "height": 1
+        },
+        {
+            "width": 7,
+            "height": 2
+        },
+        {
+            "width": 8,
+            "height": 9
+        },
+        {
+            "width": 2,
+            "height": 3
+        }
+    ],
+    "connections": [
+        [
             0,
-            10,
-            20,
-            30,
-            40,
-            50,
-            60,
-            70,
-            80,
-            90,
-            100
+            1
         ],
-        "cxpb": 0.7,
-        "mutpb": 0.2,
-        "components": [
-            {
-                "width": 1,
-                "height": 1
-            },
-            {
-                "width": 7,
-                "height": 2
-            },
-            {
-                "width": 8,
-                "height": 9
-            },
-            {
-                "width": 2,
-                "height": 3
-            }
+        [
+            0,
+            3
         ],
-        "connections": [
-            [
-                0,
-                1
-            ],
-            [
-                0,
-                3
-            ],
-            [
-                1,
-                3
-            ],
-            [
-                1,
-                2
-            ]
+        [
+            1,
+            3
+        ],
+        [
+            1,
+            2
         ]
-    }
+    ]
 }

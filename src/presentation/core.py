@@ -6,8 +6,8 @@ from tkinter import messagebox, scrolledtext, ttk
 from src.gen_alg.genetic_algorithm import GeneticAlgorithm
 from src.presentation.component_editor import ComponentEditor
 from src.presentation.plot_window import PlotWindow
-from src.utils.config_manager import ConfigManager
 from src.utils.base_config import base_config
+from src.utils.config_manager import ConfigManager
 
 
 class MainApp:

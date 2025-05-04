@@ -31,7 +31,7 @@ class ConfigManager:
         with open(filepath, "w", encoding="utf-8") as file:
             json.dump(config, file, ensure_ascii=False)
 
-    def read_dy_name(self, name: str) -> dict | str:
+    def read_by_name(self, name: str) -> dict | str:
         filepath = os.path.join(CONFIGS_DIR, f"{name}.json")
         try:
             with open(filepath, "r") as file:
@@ -61,7 +61,7 @@ class ConfigManager:
 
     def update(self, name: str, config: dict) -> None | str:
         try:
-            if name not in os.listdir(CONFIGS_DIR):
+            if f"{name}.json" not in os.listdir(CONFIGS_DIR):
                 raise FileNotFoundError
         except FileExistsError as e:
             return e
@@ -74,7 +74,7 @@ class ConfigManager:
 
     def delete(self, name: str) -> None | str:
         try:
-            if name not in os.listdir(CONFIGS_DIR):
+            if f"{name}.json" not in os.listdir(CONFIGS_DIR):
                 raise FileNotFoundError
         except FileExistsError as e:
             return e
