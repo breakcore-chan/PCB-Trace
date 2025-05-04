@@ -1,7 +1,7 @@
 import json
 import os
 
-from utils.base_config import base_config
+from src.utils.base_config import base_config
 
 CONFIGS_DIR = os.path.join("src", "configs")
 os.makedirs(CONFIGS_DIR, exist_ok=True)

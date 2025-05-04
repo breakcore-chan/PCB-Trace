@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox, ttk
 
-from gen_alg.genetic_algorithm import GeneticAlgorithm
+from gen_alg.genetic_algorithm_new import GeneticAlgorithm
 
 
 class GAWindow:
