@@ -5,7 +5,7 @@ from tkinter import scrolledtext, ttk
 import numpy as np
 from deap import base, creator, tools
 
-from configs.base_config import base_config
+from utils.base_config import base_config
 
 
 class GeneticAlgorithm:

@@ -1,6 +1,7 @@
 import json
 import os
-from src.configs.base_config import base_config
+
+from utils.base_config import base_config
 
 CONFIGS_DIR = os.path.join("src", "configs")
 os.makedirs(CONFIGS_DIR, exist_ok=True)
@@ -29,16 +30,16 @@ class ConfigManager:
         filename = os.path.join(CONFIGS_DIR, f"config{config_number}.json")
 
         default_config = {
-                "board_width": base_config.BOARD_WIDTH,
-                "board_height": base_config.BOARD_HEIGHT,
-                "population_size": base_config.POPULATION_SIZE,
-                "generations": base_config.GENERATIONS,
-                "visualization_steps": base_config.VISUALIZATION_STEPS,
-                "cxpb": base_config.CXPB,
-                "mutpb": base_config.MUTPB,
-                "components": base_config.COMPONENTS,
-                "connections": base_config.CONNECTIONS,
-            }
+            "board_width": base_config.BOARD_WIDTH,
+            "board_height": base_config.BOARD_HEIGHT,
+            "population_size": base_config.POPULATION_SIZE,
+            "generations": base_config.GENERATIONS,
+            "visualization_steps": base_config.VISUALIZATION_STEPS,
+            "cxpb": base_config.CXPB,
+            "mutpb": base_config.MUTPB,
+            "components": base_config.COMPONENTS,
+            "connections": base_config.CONNECTIONS,
+        }
 
         self.configs[name] = default_config if config is None else config
         with open(filename, "w", encoding="utf-8") as f:
