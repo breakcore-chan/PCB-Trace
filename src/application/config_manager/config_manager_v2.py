@@ -30,7 +30,7 @@ class ConfigManagerV2(ConfigManagerProtocol):
         try:
             with open(file_path, "rb") as file:
                 config_type_checker.validate_python(orjson.loads(file.read()))
-        except ValidationError:
+        except (orjson.JSONDecodeError, ValidationError):
             raise WrongFileFormat
         target_path = CONFIGS_DIR / f"{file_path.stem}.json"
         k = 1

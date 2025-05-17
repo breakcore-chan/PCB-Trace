@@ -12,7 +12,6 @@ from src.utils.types import Config
 
 
 class FrontApp:
-
     def __init__(
         self,
         root: tk.Tk,
@@ -25,6 +24,7 @@ class FrontApp:
         self._ga_processor = ga_processor
         # Создание интерфейса
         self._create_widgets()
+        self._plot_window = PlotWindow(self._root)
 
     def _create_widgets(self) -> None:
         # Левая панель: список конфигураций и кнопки
@@ -89,7 +89,6 @@ class FrontApp:
         # Отображение параметров конфигурации
         self.__config_params_frame = ttk.Frame(config_frame)
         self.__config_params_frame.pack(fill=tk.BOTH, expand=True)
-
         self._update_config_params()
 
     def _update_config_list(self) -> None:
@@ -241,12 +240,9 @@ class FrontApp:
 
     def _open_plot_window(self) -> None:
         """Открывает окно для построения графиков"""
-        # PlotWindow(
-        #     parent=self._root, config_manager=self._config_manager, fitness=self.__fitness
-        # )
         config = self.__get_active_config()
         if config:
-            PlotWindow(self._root, config, self.__config_listbox.get(tk.ACTIVE))
+            self._plot_window.create_plot(config, self.__config_listbox.get(tk.ACTIVE))
         else:
             messagebox.showwarning("Необходимо выбрать конфиг")
 

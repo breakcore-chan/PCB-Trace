@@ -1,20 +1,19 @@
 import tkinter as tk
+import uuid
+from pathlib import Path
 from tkinter import ttk
 
-from pathlib import Path
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-from src.utils.types import Config
+
 from src.utils.environments import PLOT_DIR
+from src.utils.types import Config
 
 
 # TODO добавить сохранение графиков в файл, возможно сделать менеджер графиков сродни менеджеру конфигов
 class PlotWindow:
-    def __init__(
-        self, root: tk.Tk, config: Config | list[Config], config_name: str
-    ) -> None:
+    def __init__(self, root: tk.Tk) -> None:
         root.title("Графики")
-        self.__config_name = config_name
 
         # Создаем фрейм для графика
         top_level = tk.Toplevel(root)
@@ -31,13 +30,17 @@ class PlotWindow:
         self.__canvas_widget = self.__canvas.get_tk_widget()
         self.__canvas_widget.pack(fill=tk.BOTH, expand=True)
 
+        ttk.Label(top_level, text="Название графика:").pack()
+        self.__amplitude_entry = ttk.Entry(top_level)
+        self.__amplitude_entry.insert(0, str(uuid.uuid4()))
+        self.__amplitude_entry.pack()
+
         button = ttk.Button(top_level, text="Сохранить график", command=self._save_plot)
         button.pack()
+        button = ttk.Button(top_level, text="Очистить графики", command=self._clear_fig)
+        button.pack()
 
-        # Начальный график
-        self._create_plot(config)
-
-    def _create_plot(self, config: dict | list[dict]) -> None:
+    def create_plot(self, config: dict | list[dict], config_name: str) -> None:
         if isinstance(config, list):
             for func in config:
                 self.__ax.plot(
@@ -49,7 +52,7 @@ class PlotWindow:
             self.__ax.plot(
                 config["visualization_steps"],
                 config["fitness"],
-                label=f"cxpb: {config['cxpb']} ; mutpb: {config['mutpb']} ; indpb: {config['indpb']} ; seed: {config['seed']}",
+                label=f"{config_name} | cxpb: {config['cxpb']} ; mutpb: {config['mutpb']} ; indpb: {config['indpb']} ; seed: {config['seed']}",
             )
         self.__ax.legend()
         self.__ax.set_title("График зависимости fitness от итерации")
@@ -57,7 +60,10 @@ class PlotWindow:
         self.__ax.set_ylabel("Функция приспособленности")
         self.__canvas.draw()
 
+    def _clear_fig(self) -> None:
+        self.__ax.clear()
+        self.__canvas.draw()
+
     def _save_plot(self) -> None:
-        target_dir = PLOT_DIR / Path(self.__config_name).stem
-        target_dir.mkdir(exist_ok=True)
-        self.__fig.savefig(target_dir / "plot.png")
+        target_file = PLOT_DIR / f"{self.__amplitude_entry.get()}.png"
+        self.__fig.savefig(target_file)
