@@ -2,12 +2,13 @@ import json
 import os
 
 from src.utils.base_config import base_config
+from src.application.config_manager.protocol import ConfigManagerProtocol
 
 CONFIGS_DIR = os.path.join("src", "configs")
 os.makedirs(CONFIGS_DIR, exist_ok=True)
 
 
-class ConfigManager:
+class ConfigManager(ConfigManagerProtocol):
     def __init__(self):
         self.configs = {}
         self.load_configs()
@@ -69,7 +70,8 @@ class ConfigManager:
                         os.path.join(CONFIGS_DIR, filename), "r", encoding="utf-8"
                     ) as f:
                         data = json.load(f)
-                        self.configs.update(data)
+                        config_name = data.get("name", filename)
+                        self.configs.update({config_name: data})
                 except json.JSONDecodeError:
                     continue  # Пропускаем битые JSON-файлы
 

@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox, ttk
 
-from gen_alg.genetic_algorithm_new import GeneticAlgorithm
+from src.application.genetic_algorithm.processor_v2 import GAProcessorV2
 
 
 class GAWindow:
@@ -19,8 +19,8 @@ class GAWindow:
     def run_ga(self):
         """Запускает генетический алгоритм"""
         try:
-            ga = GeneticAlgorithm(self.config)
-            pop, log = ga.run()
+            ga = GAProcessorV2()
+            pop, log = ga.run(self.config)
             print("Результат:", pop, log)
         except ValueError as e:
             messagebox.showerror("Ошибка", str(e))

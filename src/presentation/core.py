@@ -1,20 +1,23 @@
 import random
 import time
 import tkinter as tk
-from tkinter import messagebox, scrolledtext, ttk
+from tkinter import messagebox, ttk
+from typing import Any
 
-from src.gen_alg.genetic_algorithm import GeneticAlgorithm
+
+from src.application.genetic_algorithm.processor_v2 import GAProcessorV2
 from src.presentation.component_editor import ComponentEditor
 from src.presentation.plot_window import PlotWindow
 from src.utils.base_config import base_config
-from src.utils.config_manager import ConfigManager
+from src.application.config_manager.config_manager_v2 import ConfigManagerV2
+from src.presentation.ga_window import GAWindow
 
 
 class MainApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Конфигурации для размещения элементов")
-        self.config_manager = ConfigManager()
+        self.config_manager = ConfigManagerV2()
         self.fitness = []
         # Создание интерфейса
         self.create_widgets()
@@ -78,26 +81,15 @@ class MainApp:
     def update_config_list(self):
         """Обновляет список конфигураций"""
         self.config_listbox.delete(0, tk.END)
-        for config_name in self.config_manager.get_config_names():
+        for config_name in self.config_manager.get_config_list():
             self.config_listbox.insert(tk.END, config_name)
 
     def create_new_config(self):
         """Создает новую конфигурацию"""
-        new_config_name = f"Конфигурация {len(self.config_manager.configs) + 1}"
-        self.config_manager.add_config(
-            new_config_name,
-            {
-                "board_width": base_config.BOARD_WIDTH,
-                "board_height": base_config.BOARD_HEIGHT,
-                "population_size": base_config.POPULATION_SIZE,
-                "generations": base_config.GENERATIONS,
-                "visualization_steps": base_config.VISUALIZATION_STEPS,
-                "cxpb": base_config.CXPB,
-                "mutpb": base_config.MUTPB,
-                "components": base_config.COMPONENTS,
-                "connections": base_config.CONNECTIONS,
-            },
+        new_config_name = (
+            f"Конфигурация {len(self.config_manager.get_config_list()) + 1}"
         )
+        self.config_manager.add_config(new_config_name)
         self.update_config_list()
         self.update_config_params()
 
@@ -188,30 +180,25 @@ class MainApp:
                 entry.insert(0, str(config[key]))
                 entry.config(foreground="gray")
 
-    def open_ga_console(self):
-        """Открывает окно с консолью для запуска генетического алгоритма"""
+    def __get_active_config(self) -> dict[str, Any] | None:
         selected_config = self.config_listbox.get(tk.ACTIVE)
         if selected_config:
-            config = self.config_manager.get_config(selected_config)
-            ga_console = tk.Toplevel(self.root)
-            ga_console.title("Размещение элементов")
-            ga_console.geometry(
-                f"{config['board_width'] * 30}x{config['board_height'] * 30}"
-            )  # Размер окна зависит от платы
+            return self.config_manager.get_config(selected_config)
 
-            # Консоль для вывода
-            self.console = scrolledtext.ScrolledText(
-                ga_console, wrap=tk.WORD, font=("Courier", 10)
-            )
-            self.console.pack(fill=tk.BOTH, expand=True)
+    def open_ga_console(self):
+        """Открывает окно с консолью для запуска генетического алгоритма"""
+        config = self.__get_active_config()
+        if config:
+            GAWindow(self.root, config)
+        else:
+            messagebox.showwarning("Необходимо выбрать конфиг")
 
-            # Запуск генетического алгоритма
-            self.run_ga(selected_config)
-
-    def run_ga(self, config_name):
+    def __run_ga(
+        self, config_name
+    ):  # todo: удалить, если больше не будете использовать
         """Запускает генетический алгоритм и выводит результаты в консоль"""
         config = self.config_manager.get_config(config_name)
-        ga = GeneticAlgorithm(config)
+        ga = GAProcessorV2()
 
         def log(message):
             """Выводит сообщение в консоль"""
@@ -221,7 +208,7 @@ class MainApp:
         try:
             start_time = time.time()
             pop, self.fitness = ga.run(
-                log, config["visualization_steps"]
+                config
             )  # Передаем функцию log и шаги визуализации
             stop_time = time.time()
             log(f"\nФинальное поколение: {config['generations']}")
@@ -245,14 +232,17 @@ class MainApp:
 
     def open_plot_window(self):
         """Открывает окно для построения графиков"""
-        PlotWindow(
-            parent=self.root, config_manager=self.config_manager, fitness=self.fitness
-        )
+        # PlotWindow(
+        #     parent=self.root, config_manager=self.config_manager, fitness=self.fitness
+        # )
+        config = self.__get_active_config()
+        if config:
+            plot = PlotWindow()
+            plot.create_plot(config)
 
     def open_component_editor(self):
         """Открывает окно редактора компонентов"""
-        selected_config = self.config_listbox.get(tk.ACTIVE)
-        if selected_config:
-            config = self.config_manager.get_config(selected_config)
-            # Передаем config_manager в ComponentEditor
-            ComponentEditor(self.root, self.config_manager, config)
+        config_name = self.config_listbox.get(tk.ACTIVE)
+        config = self.__get_active_config()
+        if config:
+            ComponentEditor(self.root, self.config_manager, config, config_name)

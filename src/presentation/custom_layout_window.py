@@ -39,5 +39,5 @@ class CustomLayoutWindow:
             rot = int(rot_entry.get())
             placements.extend([x, y, rot])
 
-        # Здесь можно добавить вызов функции evaluate из GeneticAlgorithm
+        # TODO: Здесь можно добавить вызов функции evaluate из GeneticAlgorithm
         print("Оценка размещения:", placements)

@@ -1,11 +1,20 @@
 import tkinter as tk
+from typing import Any
 from tkinter import ttk
+from src.application.config_manager.protocol import ConfigManagerProtocol
 
 
 class ComponentEditor:
-    def __init__(self, parent, config_manager, config):
+    def __init__(
+        self,
+        parent,
+        config_manager: ConfigManagerProtocol,
+        config: dict[str, Any],
+        config_name: str,
+    ) -> None:
         self.config_manager = config_manager
         self.config = config
+        self.__config_name = config_name
         self.window = tk.Toplevel(parent)
         self.window.title("Редактор компонентов и соединений")
         self.create_widgets()
@@ -75,23 +84,22 @@ class ComponentEditor:
     def open_connection_table(self):
         """Открывает окно с таблицей соединений"""
         # Сохраняем изменения компонентов
-        config_name = next(
-            (
-                name
-                for name, cfg in self.config_manager.configs.items()
-                if cfg == self.config
-            ),
-            None,
-        )
-        if config_name:
-            self.config_manager.update_config(config_name, self.config)
-
+        self.config_manager.update_config(self.__config_name, self.config)
         self.window.destroy()
-        ConnectionTable(self.window.master, self.config_manager, self.config)
+        ConnectionTable(
+            self.window.master, self.config_manager, self.config, self.__config_name
+        )
 
 
 class ConnectionTable:
-    def __init__(self, parent, config_manager, config):
+    def __init__(
+        self,
+        parent,
+        config_manager: ConfigManagerProtocol,
+        config: dict[str, Any],
+        config_name: str,
+    ) -> None:
+        self.__config_name = config_name
         self.config_manager = config_manager
         self.config = config
         self.window = tk.Toplevel(parent)
@@ -170,16 +178,7 @@ class ConnectionTable:
             self.connection_buttons[j][i].config(text="✓")
 
         # Сохраняем изменения
-        config_name = next(
-            (
-                name
-                for name, cfg in self.config_manager.configs.items()
-                if cfg == self.config
-            ),
-            None,
-        )
-        if config_name:
-            self.config_manager.update_config(config_name, self.config)
+        self.config_manager.update_config(self.__config_name, self.config)
 
     def on_done(self):
         """Закрывает окно"""

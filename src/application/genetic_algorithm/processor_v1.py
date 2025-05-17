@@ -6,9 +6,10 @@ import numpy as np
 from deap import base, creator, tools
 
 from src.utils.base_config import base_config
+from src.application.genetic_algorithm.protocol import GAProcessorProtocol
 
 
-class GeneticAlgorithm:
+class GAProcessorV1(GAProcessorProtocol):
     def __init__(self, config: dict):
         self.config = config  # Используемый конфиг из дериктории
         self.setup_ga()
