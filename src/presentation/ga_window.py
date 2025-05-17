@@ -1,26 +1,26 @@
 import tkinter as tk
 from tkinter import messagebox, ttk
 
-from src.application.genetic_algorithm.processor_v2 import GAProcessorV2
+from src.application.genetic_algorithm.protocol import GAProcessorProtocol
 
 
 class GAWindow:
-    def __init__(self, parent, config):
-        self.config = config
-        self.window = tk.Toplevel(parent)
-        self.window.title("Запуск генетического алгоритма")
-        self.create_widgets()
+    def __init__(self, parent: tk.Tk, config, processor: GAProcessorProtocol):
+        self.__config = config
+        self.__processor = processor
+        self._window = tk.Toplevel(parent)
+        self._window.title("Запуск генетического алгоритма")
+        self._create_widgets()
 
-    def create_widgets(self):
+    def _create_widgets(self):
         """Создает интерфейс окна"""
-        ttk.Label(self.window, text="Параметры ГА").pack(pady=10)
-        ttk.Button(self.window, text="Запустить", command=self.run_ga).pack(pady=10)
+        ttk.Label(self._window, text="Параметры ГА").pack(pady=10)
+        ttk.Button(self._window, text="Запустить", command=self._run_ga).pack(pady=10)
 
-    def run_ga(self):
+    def _run_ga(self):
         """Запускает генетический алгоритм"""
         try:
-            ga = GAProcessorV2()
-            pop, log = ga.run(self.config)
+            pop, log = self.__processor.run(self.__config)
             print("Результат:", pop, log)
         except ValueError as e:
             messagebox.showerror("Ошибка", str(e))

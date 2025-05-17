@@ -4,16 +4,13 @@ import os
 
 from pathlib import Path
 from typing import Any
-from environments import CONFIGS_DIR
+from src.utils.environments import CONFIGS_DIR
 from src.application.config_manager.protocol import ConfigManagerProtocol
 from src.utils.base_config import base_config
 from src.utils.exceptions import InternalError
 
 
 class ConfigManagerV2(ConfigManagerProtocol):
-    def __init__(self):
-        pass
-
     def add_config(self, name: str = "", config: dict | None = None) -> None:
         if not name:
             filename = f"{name}.json"
