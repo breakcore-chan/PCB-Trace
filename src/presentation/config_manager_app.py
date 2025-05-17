@@ -17,9 +17,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from src.utils.config_manager_new import (
-    ConfigManager,  # Assuming your ConfigManager is in this module
-)
+from src.utils.config_manager_new import ConfigManager
 
 
 class ConfigManagerApp(QMainWindow):

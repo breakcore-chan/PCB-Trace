@@ -7,11 +7,8 @@ from src.utils.base_config import base_config
 
 
 class GeneticAlgorithm:
-    def __init__(self, config: dict):
-        self.config = config
-        self.setup_ga()
 
-    def setup_ga(self) -> None:
+    def _setup_ga(self) -> None:
         """Инициализация генетического алгоритма"""
         if not hasattr(creator, "FitnessMin"):  # Если не задана функция минимизации
             creator.create(
@@ -26,13 +23,13 @@ class GeneticAlgorithm:
             base.Toolbox()
         )  # Класс для создания функций для работы с индивидами и популяцией
         self.toolbox.register(
-            "individual", self.individual_generator
+            "individual", self._individual_generator
         )  # Алиас для вызова функции создания индивида
         self.toolbox.register(
             "population", tools.initRepeat, list, self.toolbox.individual
         )  # Создание популяции, популяция - список, каждый элемент которого - список, хромосома особи
         self.toolbox.register(
-            "evaluate", self.evaluate
+            "_evaluate", self._evaluate
         )  # Алиас для функции оценки особи
         self.toolbox.register("mate", tools.cxTwoPoint)  # Алиас для функции скрещивания
         self.toolbox.register(
@@ -47,10 +44,10 @@ class GeneticAlgorithm:
             "select", tools.selTournament, tournsize=3
         )  # Алиас для функции отбора(в данном случае турнирного)
         self.toolbox.register(
-            "mutate_rotation", self.mutRotation, indpb=base_config["indpb"]
+            "mutate_rotation", self._mutRotation, indpb=base_config["indpb"]
         )  # Алиас для функции мутации поворота, срабатывает с шансом
 
-    def individual_generator(self):
+    def _individual_generator(self):
         """Генерация случайной особи"""
         genome = []
         for comp in self.config["components"]:  # Перебираем все компоненты в конфиге
@@ -72,7 +69,7 @@ class GeneticAlgorithm:
             )  # Итоговый геном одной особи состоит из 3-х хромосом
         return creator.Individual(genome)  # Геном особи - размещение всех компонентов
 
-    def mutRotation(self, individual: list, indpb: float):
+    def _mutRotation(self, individual: list, indpb: float):
         """Мутация поворота компонента"""
         for i in range(2, len(individual), 3):
             if (
@@ -81,7 +78,7 @@ class GeneticAlgorithm:
                 individual[i] = 1 - individual[i]
         return (individual,)
 
-    def evaluate(self, individual) -> tuple[float,]:
+    def _evaluate(self, individual) -> tuple[float,]:
         """Функция оценки особи"""
         placements = np.array(individual).reshape(-1, 3)  # Преобразуем в матрицу N x 3
         overlaps = 0  # Количество пересечений
@@ -143,7 +140,9 @@ class GeneticAlgorithm:
         penalty = overlaps * 1000 + out_of_board * 5000
         return (total_wirelength + penalty,)
 
-    def run(self) -> tuple | str:
+    def run(self, config: dict) -> tuple | str:
+        self.config = config
+        self._setup_ga()
         if len(self.config["components"]) == 0:
             raise ValueError(
                 "Нет компонентов для размещения. Добавьте компоненты в конфигурацию."
@@ -157,7 +156,7 @@ class GeneticAlgorithm:
 
         # Инициализация fitness
         for ind in population:
-            ind.fitness.values = self.toolbox.evaluate(ind)
+            ind.fitness.values = self.toolbox._evaluate(ind)
 
         # Основной цикл генетического алгоритма
         for generation in range(0, self.config["generations"] + 1):
@@ -181,7 +180,7 @@ class GeneticAlgorithm:
 
             # Оценка новых особей
             invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-            fitnesses = map(self.toolbox.evaluate, invalid_ind)
+            fitnesses = map(self.toolbox._evaluate, invalid_ind)
             for ind, fit in zip(invalid_ind, fitnesses):
                 ind.fitness.values = fit
 
