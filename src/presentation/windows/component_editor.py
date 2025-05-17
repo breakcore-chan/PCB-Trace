@@ -1,9 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
-from typing import Any
 
 from src.application.config_manager.protocol import ConfigManagerProtocol
 from src.presentation.windows.connection_table import ConnectionTable
+from src.utils.types import Config
 
 
 class ComponentEditor:
@@ -11,7 +11,7 @@ class ComponentEditor:
         self,
         parent: tk.Tk,
         config_manager: ConfigManagerProtocol,
-        config: dict[str, Any],
+        config: Config,
         config_name: str,
     ) -> None:
         self.config_manager = config_manager

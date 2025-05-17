@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
-from typing import Any
 
 from src.application.config_manager.protocol import ConfigManagerProtocol
+from src.utils.types import Config
 
 
 class ConnectionTable:
@@ -10,7 +10,7 @@ class ConnectionTable:
         self,
         parent,
         config_manager: ConfigManagerProtocol,
-        config: dict[str, Any],
+        config: Config,
         config_name: str,
     ) -> None:
         self.__config_name = config_name

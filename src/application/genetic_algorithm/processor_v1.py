@@ -6,7 +6,7 @@ import numpy as np
 from deap import base, creator, tools
 
 from src.application.genetic_algorithm.protocol import GAProcessorProtocol
-from src.utils.base_config import base_config
+from utils.types import BASE_CONFIG
 
 
 class GAProcessorV1(GAProcessorProtocol):
@@ -54,7 +54,7 @@ class GAProcessorV1(GAProcessorProtocol):
             "select", tools.selTournament, tournsize=3
         )  # Алиас для функции отбора(в данном случае турнирного)
         self.toolbox.register(
-            "mutate_rotation", self.mutRotation, indpb=base_config["indpb"]
+            "mutate_rotation", self.mutRotation, indpb=BASE_CONFIG["indpb"]
         )  # Алиас для функции мутации поворота, срабатывает с шансом
         # TODO добавить в конфиг параметр indpb - вероятность конкрентой мутации(у нас вероятность поворота)
 

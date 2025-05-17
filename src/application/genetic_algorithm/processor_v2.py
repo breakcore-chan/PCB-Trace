@@ -1,15 +1,15 @@
 import random
-from typing import Any
 
 import numpy as np
 from deap import base, creator, tools
 
 from src.application.genetic_algorithm.protocol import GAProcessorProtocol
-from src.utils.base_config import base_config
+from src.utils.types import BASE_CONFIG, Config
 
 
 class GAProcessorV2(GAProcessorProtocol):
-    def _setup_ga(self, config: dict[str, Any]) -> base.Toolbox:
+
+    def _setup_ga(self, config: Config) -> base.Toolbox:
         """Инициализация генетического алгоритма"""
         if not hasattr(creator, "FitnessMin"):  # Если не задана функция минимизации
             creator.create(
@@ -36,14 +36,14 @@ class GAProcessorV2(GAProcessorProtocol):
             tools.mutUniformInt,
             low=0,
             up=max(config["board_width"], config["board_height"]) - 1,
-            indpb=base_config["indpb"],
+            indpb=BASE_CONFIG["indpb"],
         )  # Алиас для функции мутации
         # TODO добавить в конфиг возможность выбора функции отбора и размера турнирной сетки
         toolbox.register(
             "select", tools.selTournament, tournsize=3
         )  # Алиас для функции отбора(в данном случае турнирного)
         toolbox.register(
-            "mutate_rotation", self._mut_rotation, indpb=base_config["indpb"]
+            "mutate_rotation", self._mut_rotation, indpb=BASE_CONFIG["indpb"]
         )  # Алиас для функции мутации поворота, срабатывает с шансом
         return toolbox
 

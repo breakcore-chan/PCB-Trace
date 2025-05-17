@@ -1,13 +1,14 @@
 import random
 import tkinter as tk
-from tkinter import messagebox, ttk
-from typing import Any
+from tkinter import filedialog, messagebox, ttk
 
 from src.application.config_manager.protocol import ConfigManagerProtocol
 from src.application.genetic_algorithm.protocol import GAProcessorProtocol
 from src.presentation.windows.component_editor import ComponentEditor
 from src.presentation.windows.ga_processing import GAWindow
 from src.presentation.windows.plot_window import PlotWindow
+from src.utils.exceptions import WrongFileFormat
+from src.utils.types import Config
 
 
 class FrontApp:
@@ -17,7 +18,7 @@ class FrontApp:
         root: tk.Tk,
         ga_processor: GAProcessorProtocol,
         config_manager: ConfigManagerProtocol,
-    ):
+    ) -> None:
         self._root = root
         self._root.title("Конфигурации для размещения элементов")
         self._config_manager = config_manager
@@ -25,7 +26,7 @@ class FrontApp:
         # Создание интерфейса
         self._create_widgets()
 
-    def _create_widgets(self):
+    def _create_widgets(self) -> None:
         # Левая панель: список конфигураций и кнопки
         left_frame = ttk.LabelFrame(self._root, text="Конфигурации")
         left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -35,8 +36,10 @@ class FrontApp:
         self.__config_listbox.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         self.__config_listbox.bind("<<ListboxSelect>>", self._on_config_select)
         self.__config_listbox.bind(
-            "<Button-3>", self._on_right_click
+            "<Button-3>", self._delete_config
         )  # ПКМ для удаления
+        self.__config_listbox.bind("<BackSpace>", self._delete_config)
+        self.__config_listbox.bind("<Delete>", self._delete_config)
         self._update_config_list()
 
         # Кнопка для создания новой конфигурации (под списком)
@@ -44,6 +47,13 @@ class FrontApp:
             left_frame, text="Добавить конфигурацию", command=self._create_new_config
         )
         new_config_button.pack(fill=tk.X, padx=5, pady=5)
+
+        import_config_button = tk.Button(
+            left_frame,
+            text="Импортировать конфигурацию",
+            command=self._import_config,
+        )
+        import_config_button.pack(fill=tk.X, padx=5, pady=5)
 
         # Кнопка для построения графиков (под списком)
         plot_button = tk.Button(
@@ -82,13 +92,25 @@ class FrontApp:
 
         self._update_config_params()
 
-    def _update_config_list(self):
+    def _update_config_list(self) -> None:
         """Обновляет список конфигураций"""
         self.__config_listbox.delete(0, tk.END)
         for config_name in self._config_manager.get_config_list():
             self.__config_listbox.insert(tk.END, config_name)
 
-    def _create_new_config(self):
+    def _import_config(self) -> None:
+        filepath = filedialog.askopenfilename(
+            title="Выберите файл для импорта",
+            filetypes=(("JSON файлы", "*.json"), ("Все файлы", "*.*")),
+        )
+        if filepath:
+            try:
+                self._config_manager.add_config_from_path(filepath)
+            except WrongFileFormat:
+                messagebox.showerror("Ошибка", "Файл должен быть нужного формата.")
+            self._update_config_list()
+
+    def _create_new_config(self) -> None:
         """Создает новую конфигурацию"""
         new_config_name = (
             f"Конфигурация {len(self._config_manager.get_config_list()) + 1}"
@@ -97,19 +119,18 @@ class FrontApp:
         self._update_config_list()
         self._update_config_params()
 
-    def _on_config_select(self, event):
+    def _on_config_select(self, event) -> None:
         """Обработчик выбора конфигурации"""
         self._update_config_params()
 
-    def _on_right_click(self, event):
-        """Обработчик ПКМ для удаления конфигурации"""
+    def _delete_config(self, event) -> None:
         selected_config = self.__config_listbox.get(tk.ACTIVE)
         if selected_config:
             self._config_manager.delete_config(selected_config)  # Измененная строка
             self._update_config_list()
             self._update_config_params()
 
-    def _update_config_params(self):
+    def _update_config_params(self) -> None:
         """Обновляет отображение параметров конфигурации"""
         selected_config = self.__config_listbox.get(tk.ACTIVE)
         if selected_config:
@@ -149,7 +170,7 @@ class FrontApp:
 
                 row += 1
 
-    def _on_entry_focus_in(self, entry):
+    def _on_entry_focus_in(self, entry) -> None:
         """Обработчик события фокуса на поле ввода"""
         if entry.get() == str(
             self._config_manager.get_config(self.__config_listbox.get(tk.ACTIVE)).get(
@@ -159,7 +180,7 @@ class FrontApp:
             entry.delete(0, tk.END)
             entry.config(foreground="black")
 
-    def _on_entry_focus_out(self, entry, key, config):
+    def _on_entry_focus_out(self, entry, key, config) -> None:
         """Обработчик события потери фокуса на поле ввода"""
         if entry.get() == "":
             entry.insert(0, str(config[key]))
@@ -186,20 +207,26 @@ class FrontApp:
                 entry.insert(0, str(config[key]))
                 entry.config(foreground="gray")
 
-    def __get_active_config(self) -> dict[str, Any] | None:
+    def __get_active_config(self) -> Config | None:
         selected_config = self.__config_listbox.get(tk.ACTIVE)
         if selected_config:
             return self._config_manager.get_config(selected_config)
 
-    def _open_ga_console(self):
+    def _open_ga_console(self) -> None:
         """Открывает окно с консолью для запуска генетического алгоритма"""
         config = self.__get_active_config()
         if config:
-            GAWindow(self._root, config, self._ga_processor)
+            GAWindow(
+                self._root,
+                self._config_manager,
+                self._ga_processor,
+                config,
+                self.__config_listbox.get(tk.ACTIVE),
+            )
         else:
             messagebox.showwarning("Необходимо выбрать конфиг")
 
-    def _check_custom_layout(self):
+    def _check_custom_layout(self) -> None:
         """Проверяет кастомное размещение"""
         selected_config = self.__config_listbox.get(tk.ACTIVE)
         if selected_config:
@@ -212,19 +239,18 @@ class FrontApp:
                 placements.extend([x, y, rot])
             messagebox.showinfo("Кастомное размещение", f"Размещение: {placements}")
 
-    def _open_plot_window(self):
+    def _open_plot_window(self) -> None:
         """Открывает окно для построения графиков"""
         # PlotWindow(
         #     parent=self._root, config_manager=self._config_manager, fitness=self.__fitness
         # )
         config = self.__get_active_config()
         if config:
-            plot = PlotWindow()
-            plot.create_plot(config)
+            PlotWindow(self._root, config, self.__config_listbox.get(tk.ACTIVE))
         else:
             messagebox.showwarning("Необходимо выбрать конфиг")
 
-    def _open_component_editor(self):
+    def _open_component_editor(self) -> None:
         """Открывает окно редактора компонентов"""
         config_name = self.__config_listbox.get(tk.ACTIVE)
         config = self.__get_active_config()

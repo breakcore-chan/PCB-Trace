@@ -1,13 +1,19 @@
-from typing import Any, Protocol
+from typing import Protocol
+
+from src.utils.types import Config
 
 
 class ConfigManagerProtocol(Protocol):
 
-    def add_config(self, name: str = "", config: dict[str, Any] | None = None) -> None:
+    def add_config(self, name: str = "", config: Config | None = None) -> None:
         """Добавляет новую конфигурацию в отдельный файл"""
         ...
 
-    def get_config(self, name: str) -> dict[str, Any] | None:
+    def add_config_from_path(self, path: str) -> None:
+        """Добавляет новую конфигурацию в отдельный файл из существующего файла"""
+        ...
+
+    def get_config(self, name: str) -> Config | None:
         """Возвращает конфигурацию по имени, включая компоненты и соединения"""
         ...
 
@@ -15,7 +21,7 @@ class ConfigManagerProtocol(Protocol):
         """Возвращает список имен всех конфигураций"""
         ...
 
-    def update_config(self, name: str, new_config: dict[str, Any]) -> None:
+    def update_config(self, name: str, new_config: Config) -> None:
         """Обновляет существующую конфигурацию"""
         ...
 

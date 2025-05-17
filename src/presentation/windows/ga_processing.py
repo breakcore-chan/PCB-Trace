@@ -1,18 +1,26 @@
 import time
 import tkinter as tk
-from tkinter import messagebox, ttk, scrolledtext
-from typing import Any
+from tkinter import messagebox, scrolledtext, ttk
 
-
+from src.application.config_manager.protocol import ConfigManagerProtocol
 from src.application.genetic_algorithm.protocol import GAProcessorProtocol
+from src.utils.types import Config
 
 
 class GAWindow:
+
     def __init__(
-        self, parent: tk.Tk, config: dict[str, Any], processor: GAProcessorProtocol
+        self,
+        parent: tk.Tk,
+        config_manager: ConfigManagerProtocol,
+        processor: GAProcessorProtocol,
+        config: Config,
+        config_name: str,
     ):
         self.__config = config
+        self.__config_name = config_name
         self.__processor = processor
+        self.__config_manager = config_manager
         self._window = tk.Toplevel(parent)
         self.__root = parent
         self._window.title("Запуск генетического алгоритма")
@@ -48,11 +56,13 @@ class GAWindow:
 
         try:
             start_time = time.perf_counter()
-            pop, log = self.__processor.run(self.__config)
+            pop, fitness = self.__processor.run(self.__config)
             stop_time = time.perf_counter()
             self._log(f"\nФинальное поколение: {self.__config['generations']}")
             self._log("Генетический алгоритм завершён.")
             self._log(f"Время выполнения: {round(stop_time - start_time, 4)}с")
-            self._log(f"\nРезультат: {pop, log}")
+            self._log(f"\nРезультат: {pop, fitness}")
+            self.__config["fitness"] = fitness
+            self.__config_manager.update_config(self.__config_name, self.__config)
         except ValueError as e:
             messagebox.showerror("Ошибка", str(e))
