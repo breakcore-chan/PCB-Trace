@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 
+# FIXME: нигде не используется мб стоит удалить
 class CustomLayoutWindow:
     def __init__(self, parent, config):
         self.config = config
@@ -39,5 +40,5 @@ class CustomLayoutWindow:
             rot = int(rot_entry.get())
             placements.extend([x, y, rot])
 
-        # Здесь можно добавить вызов функции evaluate из GeneticAlgorithm
+        # TODO: Здесь можно добавить вызов функции evaluate из GeneticAlgorithm
         print("Оценка размещения:", placements)

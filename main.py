@@ -1,8 +1,5 @@
-import tkinter as tk
-
-from src.presentation.core import MainApp
+from src.app import GAProcessApplication
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = MainApp(root)
-    root.mainloop()
+    app = GAProcessApplication()
+    app.run()
