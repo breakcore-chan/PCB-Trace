@@ -1,11 +1,11 @@
 import random
-
 from typing import Any
+
 import numpy as np
 from deap import base, creator, tools
 
-from src.utils.base_config import base_config
 from src.application.genetic_algorithm.protocol import GAProcessorProtocol
+from src.utils.base_config import base_config
 
 
 class GAProcessorV2(GAProcessorProtocol):
@@ -189,5 +189,5 @@ class GAProcessorV2(GAProcessorProtocol):
             # Сохраняем поколения для визуализации
             if generation in self.__config["visualization_steps"]:
                 best_ind = tools.selBest(population, k=1)[0]
-                fitness_list.append(best_ind.fitness.values[0])
+                fitness_list.append(float(best_ind.fitness.values[0]))
         return population, fitness_list

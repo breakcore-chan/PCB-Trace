@@ -5,8 +5,8 @@ from tkinter import scrolledtext, ttk
 import numpy as np
 from deap import base, creator, tools
 
-from src.utils.base_config import base_config
 from src.application.genetic_algorithm.protocol import GAProcessorProtocol
+from src.utils.base_config import base_config
 
 
 class GAProcessorV1(GAProcessorProtocol):

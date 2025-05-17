@@ -3,12 +3,11 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 from typing import Any
 
-
-from src.presentation.component_editor import ComponentEditor
-from src.presentation.plot_window import PlotWindow
 from src.application.config_manager.protocol import ConfigManagerProtocol
 from src.application.genetic_algorithm.protocol import GAProcessorProtocol
-from src.presentation.ga_window import GAWindow
+from src.presentation.windows.component_editor import ComponentEditor
+from src.presentation.windows.ga_processing import GAWindow
+from src.presentation.windows.plot_window import PlotWindow
 
 
 class FrontApp:
@@ -139,11 +138,13 @@ class FrontApp:
                 # Если значение по умолчанию, делаем текст серым
                 entry.config(foreground="gray")
                 entry.bind(
-                    "<FocusIn>", lambda event, e=entry: self.on_entry_focus_in(e)
+                    "<FocusIn>", lambda event, e=entry: self._on_entry_focus_in(e)
                 )
                 entry.bind(
                     "<FocusOut>",
-                    lambda event, e=entry, k=key: self.on_entry_focus_out(e, k, config),
+                    lambda event, e=entry, k=key: self._on_entry_focus_out(
+                        e, k, config
+                    ),
                 )
 
                 row += 1
@@ -204,7 +205,7 @@ class FrontApp:
         if selected_config:
             config = self._config_manager.get_config(selected_config)
             placements = []
-            for i, comp in enumerate(config["components"]):
+            for _ in config["components"]:
                 x = random.randint(0, config["board_width"] - 1)
                 y = random.randint(0, config["board_height"] - 1)
                 rot = random.randint(0, 1)
@@ -220,6 +221,8 @@ class FrontApp:
         if config:
             plot = PlotWindow()
             plot.create_plot(config)
+        else:
+            messagebox.showwarning("Необходимо выбрать конфиг")
 
     def _open_component_editor(self):
         """Открывает окно редактора компонентов"""
@@ -227,6 +230,8 @@ class FrontApp:
         config = self.__get_active_config()
         if config:
             ComponentEditor(self._root, self._config_manager, config, config_name)
+        else:
+            messagebox.showwarning("Необходимо выбрать конфиг")
 
     def run(self) -> None:
         self._root.mainloop()

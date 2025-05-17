@@ -1,6 +1,6 @@
-from src.application.genetic_algorithm.processor_v2 import GAProcessorV2
-from src.presentation.plot_window import PlotWindow
+from presentation.windows.plot_window import PlotWindow
 from src.application.config_manager.config_manager_v2 import ConfigManagerV2
+from src.application.genetic_algorithm.processor_v2 import GAProcessorV2
 
 config_manager = ConfigManagerV2()
 genetic_algotithm = GAProcessorV2()

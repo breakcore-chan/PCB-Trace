@@ -1,4 +1,4 @@
-from typing import Protocol, Any, Tuple, List
+from typing import Any, List, Protocol, Tuple
 
 
 class GAProcessorProtocol(Protocol):

@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 
 # TODO добавить сохранение графиков в файл, возможно сделать менеджер графиков сродни менеджеру конфигов
 class PlotWindow:
-
     def create_plot(self, config: dict | list[dict]) -> None:
         if type(config) is list:
             for func in config:

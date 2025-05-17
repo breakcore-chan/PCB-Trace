@@ -1,8 +1,8 @@
 import json
 import os
 
-from src.utils.base_config import base_config
 from src.application.config_manager.protocol import ConfigManagerProtocol
+from src.utils.base_config import base_config
 
 CONFIGS_DIR = os.path.join("src", "configs")
 os.makedirs(CONFIGS_DIR, exist_ok=True)

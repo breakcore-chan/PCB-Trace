@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 
+# FIXME: нигде не используется мб стоит удалить
 class CustomLayoutWindow:
     def __init__(self, parent, config):
         self.config = config

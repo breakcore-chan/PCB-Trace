@@ -1,7 +1,8 @@
 import tkinter as tk
-from src.presentation.core import FrontApp
+
 from src.application.config_manager.config_manager_v2 import ConfigManagerV2
 from src.application.genetic_algorithm.processor_v2 import GAProcessorV2
+from src.presentation.core import FrontApp
 
 
 class GAProcessApplication:

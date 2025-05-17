@@ -1,12 +1,12 @@
-import uuid
 import json
 import os
-
+import uuid
 from pathlib import Path
 from typing import Any
-from src.utils.environments import CONFIGS_DIR
+
 from src.application.config_manager.protocol import ConfigManagerProtocol
 from src.utils.base_config import base_config
+from src.utils.environments import CONFIGS_DIR
 from src.utils.exceptions import InternalError
 
 
